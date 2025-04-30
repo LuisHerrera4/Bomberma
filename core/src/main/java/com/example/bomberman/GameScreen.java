@@ -24,8 +24,8 @@ public class GameScreen implements Screen {
     @Override
     public void show() {
         batch = new SpriteBatch();
-        background = new Texture("Fotos_Inicio/background.png");
-        player = new Texture("Personajes/player.png");
+        background = new Texture("Fotos_Inicio/inicio.png");
+        player = new Texture("Personajes/Atras/player_U1.png");
 
         playerX = 100;
         playerY = 100;

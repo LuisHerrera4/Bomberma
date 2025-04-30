@@ -9,66 +9,59 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
 
 public class MainMenuScreen implements Screen {
-
-    private MainGame game;
+    private final MainGame game;
     private Stage stage;
-    private Texture background;
     private SpriteBatch batch;
+    private Texture bgMenu;
 
     public MainMenuScreen(MainGame game) {
         this.game = game;
-        stage = new Stage(new ScreenViewport());
-        Gdx.input.setInputProcessor(stage);
-        batch = new SpriteBatch();
-
-        background = new Texture("Fotos_Inicio/background.png");
-
-        Skin skin = new Skin(Gdx.files.internal("uiskin.json")); // Puedes usar uno por defecto de libGDX
-
-        TextButton playButton = new TextButton("Jugar", skin);
-        playButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                game.setScreen(new GameScreen(game)); // Aquí entraremos al juego
-            }
-        });
-
-        Table table = new Table();
-        table.setFillParent(true);
-        table.center();
-        table.add(playButton).width(200).height(60);
-
-        stage.addActor(table);
     }
 
     @Override
-    public void show() {}
+    public void show() {
+        batch = new SpriteBatch();
+        stage = new Stage(new ScreenViewport());
+        Gdx.input.setInputProcessor(stage);
+
+        bgMenu = new Texture("Fotos_Inicio/inicio.png");  // fondo de menú si quieres
+
+        Skin skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
+        TextButton play = new TextButton("Jugar", skin);
+        play.addListener(evt -> {
+            game.setScreen(new LoadingScreen(game));
+            return true;
+        });
+
+        Table t = new Table(skin);
+        t.setFillParent(true);
+        t.center();
+        t.add(play).width(200).height(60).pad(10);
+        stage.addActor(t);
+    }
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
         batch.begin();
-        batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        batch.draw(bgMenu, 0, 0,
+            Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         batch.end();
 
         stage.act(delta);
         stage.draw();
     }
 
-    @Override public void resize(int width, int height) { stage.getViewport().update(width, height, true); }
+    @Override public void resize(int w, int h) { stage.getViewport().update(w, h, true); }
+    @Override public void dispose() {
+        batch.dispose();
+        stage.dispose();
+        bgMenu.dispose();
+    }
     @Override public void pause() {}
     @Override public void resume() {}
     @Override public void hide() {}
-    @Override public void dispose() {
-        stage.dispose();
-        background.dispose();
-        batch.dispose();
-    }
 }
