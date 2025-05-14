@@ -1,70 +1,81 @@
 package com.example.bomberman;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 
 public class GameScreen implements Screen {
-
-    private MainGame game;
+    private final BombermanGame game;
+    private final AssetManager assets;
+    private OrthographicCamera camera;
+    private FitViewport viewport;
+    private OrthogonalTiledMapRenderer mapRenderer;
     private SpriteBatch batch;
-    private Texture background;
-    private Texture player;
 
-    private float playerX, playerY;
-    private float speed = 200; // velocidad de movimiento
+    // Coordenadas jugador
+    private float playerX = 16;
+    private float playerY = 16;
 
-    public GameScreen(MainGame game) {
+    public GameScreen(BombermanGame game) {
         this.game = game;
+        this.assets = game.getAssetManager();
     }
 
     @Override
     public void show() {
-        batch = new SpriteBatch();
-        background = new Texture("Fotos_Inicio/inicio.png");
-        player = new Texture("Personajes/Atras/player_U1.png");
+        batch = game.batch;
 
-        playerX = 100;
-        playerY = 100;
+        // 1) Obtener y renderizar mapa
+        TiledMap map = assets.get("Items/map.tmx", TiledMap.class);
+        mapRenderer = new OrthogonalTiledMapRenderer(map, batch);
+
+        // 2) Configurar cámara y viewport
+        camera = new OrthographicCamera();
+        viewport = new FitViewport(17 * 16, 17 * 16, camera);
+        viewport.apply();
+        camera.position.set(viewport.getWorldWidth() / 2f, viewport.getWorldHeight() / 2f, 0);
     }
 
     @Override
     public void render(float delta) {
-        // Movimiento del jugador
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) playerX += speed * delta;
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) playerX -= speed * delta;
-        if (Gdx.input.isKeyPressed(Input.Keys.UP)) playerY += speed * delta;
-        if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) playerY -= speed * delta;
+        // 1) Actualizar cámara
+        camera.update();
+        mapRenderer.setView(camera);
 
-        // Dibujado
+        // 2) Limpiar pantalla
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        // 3) Dibujar mapa
+        mapRenderer.render();
+
+        // 4) Dibujar jugador (frame único)
+        batch.setProjectionMatrix(camera.combined);
         batch.begin();
-        batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        batch.draw(player, playerX, playerY);
+        Texture playerFrame = assets.get("Personajes/DeCara/player_D1.png", Texture.class);
+        batch.draw(playerFrame, playerX, playerY);
         batch.end();
     }
 
     @Override
-    public void resize(int width, int height) {}
+    public void resize(int width, int height) {
+        viewport.update(width, height);
+    }
 
-    @Override
-    public void pause() {}
-
-    @Override
-    public void resume() {}
-
-    @Override
-    public void hide() {}
+    @Override public void pause() {}
+    @Override public void resume() {}
+    @Override public void hide() {}
 
     @Override
     public void dispose() {
-        batch.dispose();
-        background.dispose();
-        player.dispose();
+        mapRenderer.dispose();
+        // Las texturas las maneja AssetManager
     }
 }

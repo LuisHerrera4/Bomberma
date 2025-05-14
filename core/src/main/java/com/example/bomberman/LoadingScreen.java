@@ -3,56 +3,108 @@ package com.example.bomberman;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.assets.loaders.FileHandleResolver;
+import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 
 public class LoadingScreen implements Screen {
-    private final MainGame game;
+    private final BombermanGame game;
+    private final AssetManager assets;
     private SpriteBatch batch;
     private BitmapFont font;
-    private AssetManager assets;
 
-    public LoadingScreen(MainGame game) {
+    public LoadingScreen(BombermanGame game) {
         this.game = game;
-        this.assets = game.assets;
+        this.assets = new AssetManager();
     }
 
     @Override
     public void show() {
         batch = new SpriteBatch();
-        font = new BitmapFont();
+        font  = new BitmapFont(); // fuente por defecto
 
-        // Encolamos los assets del juego
+        FileHandleResolver resolver = new InternalFileHandleResolver();
+        assets.setLoader(TiledMap.class, new TmxMapLoader(resolver));
+
+        // 1) Encolamos assets que usaremos en el juego
         assets.load("Fotos_Inicio/inicio.png", Texture.class);
-        assets.load("Personajes/DeCara/player_D1.png", Texture.class);
-        // añade aquí más (muros, sprites, sonidos…)
+        /*  Personaje movimiento */
 
-        assets.finishLoading(); // o si quieres ver % en render(): usa assets.update()
-        game.setScreen(new GameScreen(game));
+        /* DE CARA */
+        assets.load("Personajes/DeCara/player_D1.png", Texture.class);
+        assets.load("Personajes/DeCara/player_D2.png", Texture.class);
+        assets.load("Personajes/DeCara/player_D3.png", Texture.class);
+
+        /* DE ATRAS */
+
+        assets.load("Personajes/Atras/player_U1.png", Texture.class);
+        assets.load("Personajes/Atras/player_U2.png", Texture.class);
+        assets.load("Personajes/Atras/player_U3.png", Texture.class);
+
+        /* DE DERECHA */
+
+        assets.load("Personajes/Derecha/player_D1.png", Texture.class);
+        assets.load("Personajes/Derecha/player_D2.png", Texture.class);
+        assets.load("Personajes/Derecha/player_D3.png", Texture.class);
+
+
+        /* DE IZQUIERDA */
+
+        assets.load("Personajes/Izquierda/player_L1.png", Texture.class);
+        assets.load("Personajes/Izquierda/player_L2.png", Texture.class);
+        assets.load("Personajes/Izquierda/player_L3.png", Texture.class);
+
+
+        /* Mapa y items*/
+        assets.load("Items/bomb.png", Texture.class);
+        assets.load("Items/map.tiles.png", Texture.class);
+        assets.load("Items/obstacle.png", Texture.class);
+        assets.load("Items/quantity.bonus.png", Texture.class);
+        assets.load("Items/range.bonus.png", Texture.class);
+        assets.load("Items/map.tmx", TiledMap.class);
+
+        // TODO: añade aquí más, p.e. muros, bombas, ítems…
+        // assets.load("Tiles/muro.png", Texture.class);
+
+        // 2) Si quieres ver la barra de progreso, no bloquees:
+        //    en render() usaremos assets.update()
     }
 
     @Override
     public void render(float delta) {
+        // Actualiza carga (devuelve true cuando termina)
+        if (assets.update()) {
+            // Ya está todo cargado: pasamos a GameScreen
+            game.setAssetManager(assets);         // le pasamos el manager
+            game.setScreen(new GameScreen(game)); // construye GameScreen con esos assets
+            return;
+        }
+
+        // Dibujo de barra de carga simple
+        float progress = assets.getProgress(); // 0.0 – 1.0
+
+        Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        float progress = assets.getProgress(); // 0 a 1
         batch.begin();
         font.draw(batch, "Cargando: " + (int)(progress * 100) + "%", 50, 50);
         batch.end();
-
-        if (assets.update()) {
-            game.setScreen(new GameScreen(game));
-        }
     }
 
-    @Override public void dispose() {
-        batch.dispose();
-        font.dispose();
-    }
-    @Override public void resize(int w, int h) {}
+    @Override public void resize(int width, int height) {}
     @Override public void pause() {}
     @Override public void resume() {}
     @Override public void hide() {}
+
+    @Override
+    public void dispose() {
+        batch.dispose();
+        font.dispose();
+        // NO dispo se assets: los dispone GameScreen o la clase principal al final
+    }
 }

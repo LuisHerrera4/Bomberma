@@ -7,12 +7,12 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public class SplashScreen implements Screen {
-    private final MainGame game;
+    private final BombermanGame game;
     private SpriteBatch batch;
     private Texture splash;
     private float elapsed = 0;
 
-    public SplashScreen(MainGame game) {
+    public SplashScreen(BombermanGame game) {
         this.game = game;
     }
 

@@ -4,7 +4,7 @@ import android.os.Bundle;
 
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
-import com.example.bomberman.MainGame;
+import com.example.bomberman.BombermanGame;
 
 /** Launches the Android application. */
 public class AndroidLauncher extends AndroidApplication {
@@ -12,7 +12,7 @@ public class AndroidLauncher extends AndroidApplication {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         AndroidApplicationConfiguration configuration = new AndroidApplicationConfiguration();
-        configuration.useImmersiveMode = true; // Recommended, but not required.
-        initialize(new MainGame(), configuration);
+        configuration.useImmersiveMode = true;
+        initialize(new BombermanGame(), configuration);
     }
 }
