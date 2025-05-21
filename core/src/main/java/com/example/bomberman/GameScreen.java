@@ -59,8 +59,8 @@ public class GameScreen implements Screen {
         // 4) Dibujar jugador (frame único)
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
-        Texture playerFrame = assets.get("Personajes/DeCara/player_D1.png", Texture.class);
-        batch.draw(playerFrame, playerX, playerY);
+        Texture playerFrame = assets.get("Personajes/Derecha/player_R1.png", Texture.class);
+        batch.draw(playerFrame, playerX, playerY, 16, 16);
         batch.end();
     }
 

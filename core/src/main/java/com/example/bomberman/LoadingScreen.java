@@ -48,9 +48,9 @@ public class LoadingScreen implements Screen {
 
         /* DE DERECHA */
 
-        assets.load("Personajes/Derecha/player_D1.png", Texture.class);
-        assets.load("Personajes/Derecha/player_D2.png", Texture.class);
-        assets.load("Personajes/Derecha/player_D3.png", Texture.class);
+        assets.load("Personajes/Derecha/player_R1.png", Texture.class);
+        assets.load("Personajes/Derecha/player_R2.png", Texture.class);
+        assets.load("Personajes/Derecha/player_R3.png", Texture.class);
 
 
         /* DE IZQUIERDA */
@@ -77,24 +77,49 @@ public class LoadingScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        // Actualiza carga (devuelve true cuando termina)
+        // Actualiza carga
         if (assets.update()) {
-            // Ya está todo cargado: pasamos a GameScreen
-            game.setAssetManager(assets);         // le pasamos el manager
-            game.setScreen(new GameScreen(game)); // construye GameScreen con esos assets
+            game.setAssetManager(assets);
+            game.setScreen(new GameScreen(game));
             return;
         }
 
-        // Dibujo de barra de carga simple
-        float progress = assets.getProgress(); // 0.0 – 1.0
+        float progress = assets.getProgress(); // 0.0 - 1.0
 
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         batch.begin();
-        font.draw(batch, "Cargando: " + (int)(progress * 100) + "%", 50, 50);
+
+        // Escala grande para texto
+        font.getData().setScale(2);
+        String mensaje = "Cargando: " + (int)(progress * 100) + "%";
+        float textWidth = font.getRegion().getRegionWidth();
+        font.draw(batch, mensaje,
+            (Gdx.graphics.getWidth() / 2f) - (textWidth / 2f),
+            Gdx.graphics.getHeight() / 2f + 30
+        );
+
+        // Barra de carga simple
+        float barWidth = 300;
+        float barHeight = 20;
+        float x = (Gdx.graphics.getWidth() - barWidth) / 2f;
+        float y = Gdx.graphics.getHeight() / 2f - barHeight;
+
+
+        // Fondo barra
+        batch.setColor(0.3f, 0.3f, 0.3f, 1);
+        batch.draw(new Texture("ui/uiskin.png"), x, y, barWidth, barHeight);
+
+        // Progreso barra
+        batch.setColor(0.8f, 0.8f, 1f, 1);
+        batch.draw(new Texture("ui/uiskin.png"), x, y, barWidth * progress, barHeight);
+
+        batch.setColor(1, 1, 1, 1); // Restablece color
+
         batch.end();
     }
+
 
     @Override public void resize(int width, int height) {}
     @Override public void pause() {}
